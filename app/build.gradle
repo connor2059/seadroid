@@ -8,8 +8,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 63
-        versionName "2.1.9"
+        versionCode 64
+        versionName "2.2.0"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -31,7 +31,7 @@ android {
 //            keyPassword props.keyAliasPassword
         }
         release {
-//             Signing code for manual signing
+//            Signing code for manual signing
 //            storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
 //            storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
 //            keyAlias System.console().readLine("\n\$ Enter key alias: ")
