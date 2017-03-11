@@ -75,6 +75,7 @@
     <string name="file_action_download">下载</string>
     <string name="file_action_update">上传</string>
     <string name="file_action_share">分享链接</string>
+    <string name="file_action_share_encrypt">分享加密链接</string>
     <string name="file_action_export">导出</string>
     <string name="file_action_delete">删除</string>
     <string name="file_action_rename">重命名</string>
@@ -163,6 +164,7 @@
     <string name="copy_link">复制链接</string>
     <string name="share_file_link">分享此文件的链接</string>
     <string name="share_dir_link">分享此文件夹的链接</string>
+    <string name="share_input_password">请输入加密密码</string>
     <string name="generating_link">生成链接中. . .</string>
     <string name="link_ready_to_be_pasted">此链接已被复制到剪贴板。</string>
     <string name="rename_repo">重命名资料库</string>
