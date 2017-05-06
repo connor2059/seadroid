@@ -4,10 +4,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -19,35 +15,37 @@ import com.seafile.seadroid2.data.SeafLink;
 import java.util.ArrayList;
 
 class GetShareLinkTask extends TaskDialog.Task {
-    Account account;
     String repoID;
     String path;
-    String password;
+    boolean isdir;
     SeafConnection conn;
     String link;
+    Account account;
+    String password;
     String days;
 
-    public GetShareLinkTask(String repoID, String path, String password, SeafConnection conn, String days,
-                            Account account) {
+    public GetShareLinkTask(String repoID, String path, boolean isdir, SeafConnection conn, Account account, String password, String days) {
         this.repoID = repoID;
         this.path = path;
-        this.password = password;
+        this.isdir = isdir;
         this.conn = conn;
-        this.days = days;
         this.account = account;
+        this.password = password;
+        this.days = days;
     }
 
     @Override
     protected void runTask() {
+
+        // If you has  Shared links to delete Shared links
+        DataManager dataManager = new DataManager(account);
+        ArrayList<SeafLink> shareLinks = dataManager.getShareLink(repoID, path);
+        for (SeafLink shareLink : shareLinks) {
+            //delete link
+            dataManager.deleteShareLink(shareLink.getToken());
+        }
+        //create new link
         try {
-            // If you has  Shared links to delete Shared links
-            DataManager dataManager = new DataManager(account);
-            ArrayList<SeafLink> shareLinks = dataManager.getShareLink(repoID, path);
-            for (SeafLink shareLink : shareLinks) {
-                //delete link
-                dataManager.deleteShareLink(shareLink.getToken());
-            }
-            //create new link
             link = conn.getShareLink(repoID, path, password, days);
         } catch (SeafException e) {
             setTaskException(e);
@@ -59,115 +57,45 @@ class GetShareLinkTask extends TaskDialog.Task {
     }
 }
 
-public class GetShareLinkDialog extends TaskDialog implements CompoundButton.OnCheckedChangeListener {
-    private static final String STATE_TASK_REPO_NAME = "state_task_repo_name_share";
-    private static final String STATE_TASK_REPO_ID = "state_task_repo_id_share";
+public class GetShareLinkDialog extends TaskDialog {
     private String repoID;
     private String path;
-    private boolean isEncrypt = false;
+    private boolean isdir;
     private SeafConnection conn;
-    private EditText passwordText;
-    private String repoName;
-    private EditText days;
-    private CheckBox cbExpiration;
-    private Account account;
+    Account account;
+    private String password;
+    private String days;
 
-    public void init(String repoID, String path, boolean isEncrypt, Account account) {
+    public void init(String repoID, String path, boolean isdir, Account account, String password, String days) {
         this.repoID = repoID;
         this.path = path;
-        this.isEncrypt = isEncrypt;
-        this.account = account;
+        this.isdir = isdir;
         this.conn = new SeafConnection(account);
+        this.account = account;
+        this.password = password;
+        this.days = days;
     }
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
-        View view = null;
-        if (isEncrypt) {
-            view = inflater.inflate(R.layout.dialog_share_password, null);
-            passwordText = (EditText) view.findViewById(R.id.password);
-            days = (EditText) view.findViewById(R.id.days);
-            cbExpiration = (CheckBox) view.findViewById(R.id.add_expiration);
-            cbExpiration.setOnCheckedChangeListener(this);
+        return null;
+    }
 
-            if (savedInstanceState != null) {
-                repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
-                repoID = savedInstanceState.getString(STATE_TASK_REPO_ID);
-            }
-        }
-        return view;
+    @Override
+    protected boolean executeTaskImmediately() {
+        return true;
     }
 
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        if (isEncrypt) {
-            dialog.setTitle(getString(R.string.share_input_password));
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        } else {
-            dialog.setTitle(getActivity().getString(R.string.generating_link));
-        }
-    }
-
-    @Override
-    protected void onSaveDialogContentState(Bundle outState) {
-        outState.putString(STATE_TASK_REPO_NAME, repoName);
-        outState.putString(STATE_TASK_REPO_ID, repoID);
-    }
-
-    @Override
-    protected void onValidateUserInput() throws Exception {
-        String password = passwordText.getText().toString().trim();
-        String day = days.getText().toString().trim();
-
-        if (password.length() == 0) {
-            String err = getActivity().getResources().getString(R.string.password_empty);
-            throw new Exception(err);
-        }
-
-        if (password.length() < getResources().getInteger(R.integer.minimum_password_length)) {
-            throw new Exception(getResources().getString(R.string.err_passwd_too_short));
-        }
-
-        if (cbExpiration.isChecked() && day.length() == 0) {
-            String err = getActivity().getResources().getString(R.string.input_auto_expiration);
-            throw new Exception(err);
-        }
-    }
-
-    @Override
-    protected void disableInput() {
-        super.disableInput();
-        if (isEncrypt) {
-            passwordText.setEnabled(false);
-        }
-    }
-
-    @Override
-    protected void enableInput() {
-        super.enableInput();
-        if (isEncrypt) {
-            passwordText.setEnabled(true);
-        }
-    }
-
-
-    @Override
-    protected boolean executeTaskImmediately() {
-        return !isEncrypt;
+        dialog.setTitle(getActivity().getString(R.string.generating_link));
+        // dialog.setTitle(getActivity().getString(R.string.generating_link));
     }
 
     @Override
     protected GetShareLinkTask prepareTask() {
-        String password = null;
-        String days = null;
-        if (isEncrypt) {
-            password = passwordText.getText().toString().trim();
-        }
-        if (cbExpiration.isChecked()) {
-            days = this.days.getText().toString().trim();
-        }
-        GetShareLinkTask task = new GetShareLinkTask(repoID, path, password, conn, days, account);
+        GetShareLinkTask task = new GetShareLinkTask(repoID, path, isdir, conn, account, password, days);
         return task;
     }
 
@@ -178,18 +106,5 @@ public class GetShareLinkDialog extends TaskDialog implements CompoundButton.OnC
         }
 
         return null;
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (errorIsVisible()) {
-            hideError();
-        }
-        if (isChecked) {
-            days.setVisibility(View.VISIBLE);
-        } else {
-            days.setVisibility(View.GONE);
-
-        }
     }
 }

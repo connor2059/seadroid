@@ -346,7 +346,11 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void shareFile(String repoID, boolean isEncrypt, String path) {
-        WidgetUtils.chooseShareApp(this, repoID, path, isEncrypt, false, mAccount);
+        if (isEncrypt) {
+            WidgetUtils.inputSharePassword(this, repoID, path, false, mAccount);
+        } else {
+            WidgetUtils.chooseShareApp(this, repoID, path, false, mAccount, null, null);
+        }
     }
 
     class StarFileTask extends AsyncTask<Void, Void, Void> {

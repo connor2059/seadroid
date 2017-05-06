@@ -116,6 +116,7 @@ public class BrowserActivity extends BaseActivity
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
+    public static final String CHARE_LINK_PASSWORD_FRAGMENT_TAG = "share_link_password_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
@@ -1901,11 +1902,19 @@ public class BrowserActivity extends BaseActivity
      * @param path
      */
     public void shareFile(final String repoID, final String path, boolean isEncrypt) {
-        WidgetUtils.chooseShareApp(BrowserActivity.this, repoID, path, isEncrypt, false, account);
+        if (isEncrypt) {
+            WidgetUtils.inputSharePassword(this, repoID, path, false, account);
+        } else {
+            WidgetUtils.chooseShareApp(this, repoID, path, false, account, null, null);
+        }
     }
 
     public void shareDir(String repoID, String path, boolean isEncrypt) {
-        WidgetUtils.chooseShareApp(this, repoID, path, isEncrypt, true, account);
+        if (isEncrypt) {
+            WidgetUtils.inputSharePassword(this, repoID, path, true, account);
+        } else {
+            WidgetUtils.chooseShareApp(this, repoID, path, true, account, null, null);
+        }
     }
 
     public void renameFile(String repoID, String repoName, String path) {
