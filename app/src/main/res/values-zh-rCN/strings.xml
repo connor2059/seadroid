@@ -75,7 +75,7 @@
   <string name="file_action_download">下载</string>
   <string name="file_action_update">上传</string>
   <string name="file_action_share">分享链接</string>
-  <string name="file_action_share_encrypt">分享加密链接</string>
+  <string name="file_action_share_encrypt">分享高级链接</string>
   <string name="file_action_export">导出</string>
   <string name="file_action_delete">删除</string>
   <string name="file_action_rename">重命名</string>

@@ -20,6 +20,7 @@ import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
+import com.seafile.seadroid2.ui.dialog.GetShareLinkEncryptDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
@@ -34,9 +35,10 @@ public class WidgetUtils {
     public static void chooseShareApp(final BaseActivity activity,
                                       final String repoID,
                                       final String path,
-                                      final boolean isEncrypt,
                                       final boolean isdir,
-                                      final Account account) {
+                                      final Account account,
+                                      final String password,
+                                      final String days) {
         final Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
@@ -53,7 +55,7 @@ public class WidgetUtils {
             @Override
             public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isEncrypt, account);
+                gdialog.init(repoID, path, isdir, account, password, days);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     @SuppressWarnings("deprecation")
@@ -76,7 +78,7 @@ public class WidgetUtils {
                 shareIntent.setClassName(packageName, className);
 
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isEncrypt, account);
+                gdialog.init(repoID, path, isdir, account,password, days);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
@@ -90,6 +92,25 @@ public class WidgetUtils {
         });
         dialog.show(activity.getSupportFragmentManager(), BrowserActivity.CHOOSE_APP_DIALOG_FRAGMENT_TAG);
     }
+
+    public static void inputSharePassword(final BaseActivity activity,
+                                          final String repoID,
+                                          final String path,
+                                          final boolean isdir,
+                                          final Account account){
+        final GetShareLinkEncryptDialog dialog = new GetShareLinkEncryptDialog();
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                String password = dialog.getPassword();
+                String days = dialog.getDays();
+                chooseShareApp(activity,repoID,path,isdir,account,password,days);
+            }
+        });
+        dialog.show(activity.getSupportFragmentManager(),BrowserActivity.CHARE_LINK_PASSWORD_FRAGMENT_TAG);
+
+    }
+
 
     /**
      * display the file according to its file type
